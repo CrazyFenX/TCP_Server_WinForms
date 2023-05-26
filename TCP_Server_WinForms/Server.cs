@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -10,11 +12,8 @@ namespace TCP_Client_Server
 {
     public class Server
     {
-        //int port = 8888;
-        //string hostname = "192.168.1.74";
-        //string hostname = "192.168.0.14";
-
-        //Socket socket;
+        static int width = 1920;
+        static int height = 1080;
 
         bool live = false;
         string errorString = "Нет ошибок";
@@ -22,14 +21,11 @@ namespace TCP_Client_Server
         public TextBox textBoxState;
 
         Socket tcpClient;
+        static Bitmap BackGround = new Bitmap(width, height);
+        Graphics graphics = Graphics.FromImage(BackGround);
 
         public Server(string hostname, int port, TextBox _textBoxState)
         {
-            //IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(hostname), port);
-            //socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            //socket.Bind(ipPoint);   // связываем с локальной точкой ipPoint
-
             textBoxState = _textBoxState; // Если null, все к херам развалится :)))
 
             IPAddress localAddr = IPAddress.Parse(hostname);
@@ -39,53 +35,26 @@ namespace TCP_Client_Server
 
             Listening(server);  // Слушаем
 
-            //while (live)
-            //{
-
-            //}
         }
 
+        /// <summary>
+        /// Ожидание подключений
+        /// </summary>
+        /// <param name="server"></param>
         private async void Listening(TcpListener server)
         {
-            //socket.Listen(1000);
-
             WriteInLog("Сервер запущен. Ожидание подключений...");
             live = true;
 
             // получаем входящее подключение
             tcpClient = await server.Server.AcceptAsync();
 
-            // получаем подключение в виде TcpClient
-            //using var tcpClient = await server.AcceptTcpClientAsync();
-
-            // получаем входящее подключение
-            //using var tcpClient1 = await server.AcceptAsync();
-
             // Получаем адрес клиента
             WriteInLog($"Адрес подключенного клиента: {tcpClient.RemoteEndPoint}");
-
-            // Ждем сообщения
-            ReceiveAsyncTCP(tcpClient);
-
         }
 
-        //private async void ReadingClientStream(Socket clientSocket)
-        //{
-        //    // буфер для получения данных
-        //    var responseData = new byte[512];
-
-        //    using var stream = new NetworkStream(clientSocket);
-
-        //    // получаем данные
-        //    var bytes = await stream.ReadAsync(responseData);
-        //    // преобразуем полученные данные в строку
-        //    string response = Encoding.UTF8.GetString(responseData, 0, bytes);
-        //    // выводим данные на консоль
-        //    WriteInLog(response);
-        //}
-
         /// <summary>
-        /// Отправить сообщение
+        /// Отправить картинку (Устаревший)
         /// </summary>
         public async void SendAsyncTCP()
         {
@@ -94,27 +63,69 @@ namespace TCP_Client_Server
                 WriteInLog("Клиент не доступен!");
                 return;
             }
+            // Получаем снимок экрана
+            graphics.CopyFromScreen(0, 0, 0, 0, BackGround.Size);
 
-            // определяем данные для отправки - текущее время
-            //byte[] data = Encoding.UTF8.GetBytes(DateTime.Now.ToLongTimeString());
+            // получаем размеры окна рабочего стола
+            Rectangle bounds = Screen.GetBounds(Point.Empty);
 
-            FileStream stream = new FileStream("C:\\Users\\User\\source\\repos\\TCP_Server_WinForms\\TCP_Server_WinForms\\media\\important-file.png", FileMode.Open, FileAccess.Read);
-            var image = Image.FromStream(stream);
-            stream.Close();
+            // создаем пустое изображения размером с экран устройства
+            using (var bitmap = new Bitmap(bounds.Width, bounds.Height))
+            {
+                // создаем объект на котором можно рисовать
+                using (var g = Graphics.FromImage(bitmap))
+                {
+                    // перерисовываем экран на наш графический объект
+                    g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
+                }
 
-            byte[] data = ImageToByteArray(image);
-
-            // отправляем данные
-            await tcpClient.SendAsync(data, SocketFlags.None);
+                var data1 = ImageToByteArray(bitmap);
+                await tcpClient.SendAsync(data1, SocketFlags.None);
+            }
 
             WriteInLog("Сообщение отправлено");
         }
 
         /// <summary>
-        /// Принять сообщение
+        /// Отправить снимок экрана
+        /// </summary>
+        public async void SendScreenAsyncTCP()
+        {
+            // Проверяем, есть ли клиент, чтобы все к херам не развалилось
+            if (tcpClient == null)
+            {
+                WriteInLog("Клиент не доступен!");
+                return;
+            }
+            // Получаем снимок экрана
+            graphics.CopyFromScreen(0, 0, 0, 0, BackGround.Size);
+
+            // Получаем размеры окна рабочего стола
+            Rectangle bounds = Screen.GetBounds(Point.Empty);
+
+            // Создаем пустое изображения размером с экран устройства
+            using (var bitmap = new Bitmap(bounds.Width, bounds.Height))
+            {
+                // Создаем объект на котором можно рисовать
+                using (var g = Graphics.FromImage(bitmap))
+                {
+                    // Перерисовываем экран на наш графический объект
+                    g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
+                }
+                // Конвертируем картинку в массив байтов
+                var data = ImageToByteArray(bitmap);
+
+                // Асинхронная отправка
+                await tcpClient.SendAsync(data, SocketFlags.None);
+            }
+            WriteInLog("Сообщение отправлено");
+        }
+
+        /// <summary>
+        /// Принять сообщение (заглушка)
         /// </summary>
         /// <param name="socket"></param>
-        private async void ReceiveAsyncTCP(Socket socket)
+        private async void ReceiveTCPAsync(Socket socket)
         {
             byte[] data = new byte[512];
 
@@ -126,28 +137,70 @@ namespace TCP_Client_Server
         }
 
         #region Service Methods
-
-        public void WriteInLog(string message)
+        
+        /// <summary>
+        /// Запись в текстбокс лога изнутри 
+        /// </summary>
+        /// <param name="message"> Сообщение </param>
+        private void WriteInLog(string message)
         {
             if (textBoxState != null)
                 textBoxState.Text += "\r\n" + message;
         }
 
+        /// <summary>
+        /// Запись в текстбокс лога извне
+        /// </summary>
+        /// <param name="message"> Сообщение </param>
+        /// <param name="_textBoxState"> Целевой текстбокс </param>
         public static void WriteInLog(string message, TextBox _textBoxState)
         {
             if (_textBoxState != null)
                 _textBoxState.Text += "\r\n" + message;
         }
+
+        /// <summary>
+        /// Конвертация изображения в массив битов
+        /// </summary>
+        /// <param name="imageIn"> Изображение </param>
+        /// <returns></returns>
         static byte[] ImageToByteArray(Image imageIn)
         {
             using (var ms = new MemoryStream())
             {
-                imageIn.Save(ms, imageIn.RawFormat);
+                // 5 строчек магии (мутим параметры для сохранения потока памяти)
+                var myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                var myEncoderParameters = new EncoderParameters(1);
+                var myEncoderParameter = new EncoderParameter(myEncoder, 50L);
+                myEncoderParameters.Param[0] = myEncoderParameter;
+                var myImageCodecInfo = GetEncoderInfo("image/jpeg");
+
+                // Сохраняем поток памяти
+                imageIn.Save(ms, myImageCodecInfo, myEncoderParameters);
                 return ms.ToArray();
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Получить encoder
+        /// Вспомогательный метод для конвертации
+        /// </summary>
+        /// <param name="mimeType"> Какое-то говно </param>
+        /// <returns> Кодек инфо </returns>
+        private static ImageCodecInfo GetEncoderInfo(String mimeType)
+        {
+            int j;
+            ImageCodecInfo[] encoders;
+            encoders = ImageCodecInfo.GetImageEncoders();
+            for (j = 0; j < encoders.Length; ++j)
+            {
+                if (encoders[j].MimeType == mimeType)
+                    return encoders[j];
+            }
+            return null;
+        }
+
+        #endregion Service Methods
 
     }
 }

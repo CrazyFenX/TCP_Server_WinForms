@@ -5,6 +5,7 @@ namespace TCP_Server_WinForms
     public partial class Form1 : Form
     {
         Server tcpServer;
+        bool IsStreamingOn = false;
 
         public Form1()
         {
@@ -37,6 +38,26 @@ namespace TCP_Server_WinForms
             {
                 Server.WriteInLog(ex.Message, StateTextBox);
             }
+        }
+
+        private void StartStreamButton_Click(object sender, EventArgs e)
+        {
+            IsStreamingOn = true;
+
+            try
+            {
+                while(IsStreamingOn)
+                    tcpServer.SendScreenAsyncTCP();
+            }
+            catch (Exception ex)
+            {
+                Server.WriteInLog(ex.Message, StateTextBox);
+            }
+        }
+
+        private void StopStreamButton_Click(object sender, EventArgs e)
+        {
+            IsStreamingOn = false;
         }
     }
 }

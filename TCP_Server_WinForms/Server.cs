@@ -21,22 +21,37 @@ namespace TCP_Client_Server
         public TextBox textBoxState;
 
         Socket tcpClient;
+        Socket udpClient;
+
+        IPEndPoint LocalIp;
+        IPEndPoint RemoteIp;
+
         static Bitmap BackGround = new Bitmap(width, height);
         Graphics graphics = Graphics.FromImage(BackGround);
 
-        public Server(string hostname, int port, TextBox _textBoxState)
+        public Server(string hostname, int port, TextBox _textBoxState, ProtocolType protocolType)
         {
             textBoxState = _textBoxState; // Если null, все к херам развалится :)))
 
-            IPAddress localAddr = IPAddress.Parse(hostname);
-            IPEndPoint ipLocalEndPoint = new IPEndPoint(localAddr, port);
-            TcpListener server = new TcpListener(ipLocalEndPoint);
-            server.Start();  // Запускаем сервер
+            IPAddress LocalAddr = IPAddress.Parse(hostname);
+            LocalIp = new IPEndPoint(LocalAddr, port);
+            
+            if (protocolType == ProtocolType.TCP)
+            {
+                TcpListener server = new TcpListener(LocalIp);
+                server.Start();  // Запускаем сервер
 
-            Listening(server);  // Слушаем
+                Listening(server);  // Слушаем
+            }
+            else if (protocolType == ProtocolType.UDP)
+            {
+
+                udpClient = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, System.Net.Sockets.ProtocolType.Udp);
+                SendAsyncUDP();
+            }
 
         }
-
+        
         /// <summary>
         /// Ожидание подключений
         /// </summary>
@@ -84,6 +99,40 @@ namespace TCP_Client_Server
             }
 
             WriteInLog("Сообщение отправлено");
+        }
+        
+        /// <summary>
+        /// Отправить картинку UDP
+        /// </summary>
+        public async void SendAsyncUDP()
+        {
+            int a = 0;
+            if (udpClient == null)
+            {
+                WriteInLog("Клиент не доступен!");
+                return;
+            }
+            // Получаем снимок экрана
+            graphics.CopyFromScreen(0, 0, 0, 0, BackGround.Size);
+
+            // получаем размеры окна рабочего стола
+            Rectangle bounds = Screen.GetBounds(Point.Empty);
+
+            // создаем пустое изображения размером с экран устройства
+            using (var bitmap = new Bitmap(bounds.Width, bounds.Height))
+            {
+                // создаем объект на котором можно рисовать
+                using (var g = Graphics.FromImage(bitmap))
+                {
+                    // перерисовываем экран на наш графический объект
+                    g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
+                }
+
+                var data1 = ImageToByteArray(bitmap);
+                a = await udpClient.SendToAsync(data1, SocketFlags.None, RemoteIp);
+            }
+
+            WriteInLog($"Сообщение отправлено {a}байт");
         }
 
         /// <summary>
@@ -202,5 +251,10 @@ namespace TCP_Client_Server
 
         #endregion Service Methods
 
+        public enum ProtocolType
+        {
+            TCP  = 1,
+            UDP = 2,
+        }
     }
 }

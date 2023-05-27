@@ -34,8 +34,12 @@
             this.StateTextBox = new System.Windows.Forms.TextBox();
             this.textBoxMessage = new System.Windows.Forms.TextBox();
             this.SendButton = new System.Windows.Forms.Button();
-            this.StartStreamButton = new System.Windows.Forms.Button();
-            this.StopStreamButton = new System.Windows.Forms.Button();
+            this.StartStreamButtonTCP = new System.Windows.Forms.Button();
+            this.StopStreamButtonTCP = new System.Windows.Forms.Button();
+            this.StopStreamButtonUDP = new System.Windows.Forms.Button();
+            this.StartStreamButtonUDP = new System.Windows.Forms.Button();
+            this.startUDPButton = new System.Windows.Forms.Button();
+            this.SendUDPButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // StartButton
@@ -92,33 +96,77 @@
             this.SendButton.UseVisualStyleBackColor = true;
             this.SendButton.Click += new System.EventHandler(this.SendButton_Click);
             // 
-            // StartStreamButton
+            // StartStreamButtonTCP
             // 
-            this.StartStreamButton.Location = new System.Drawing.Point(128, 160);
-            this.StartStreamButton.Name = "StartStreamButton";
-            this.StartStreamButton.Size = new System.Drawing.Size(107, 23);
-            this.StartStreamButton.TabIndex = 6;
-            this.StartStreamButton.Text = "Start streaming";
-            this.StartStreamButton.UseVisualStyleBackColor = true;
-            this.StartStreamButton.Click += new System.EventHandler(this.StartStreamButton_Click);
+            this.StartStreamButtonTCP.Location = new System.Drawing.Point(128, 160);
+            this.StartStreamButtonTCP.Name = "StartStreamButtonTCP";
+            this.StartStreamButtonTCP.Size = new System.Drawing.Size(133, 23);
+            this.StartStreamButtonTCP.TabIndex = 6;
+            this.StartStreamButtonTCP.Text = "Start streaming TCP";
+            this.StartStreamButtonTCP.UseVisualStyleBackColor = true;
+            this.StartStreamButtonTCP.Click += new System.EventHandler(this.StartStreamButton_Click);
             // 
-            // StopStreamButton
+            // StopStreamButtonTCP
             // 
-            this.StopStreamButton.Location = new System.Drawing.Point(128, 189);
-            this.StopStreamButton.Name = "StopStreamButton";
-            this.StopStreamButton.Size = new System.Drawing.Size(107, 23);
-            this.StopStreamButton.TabIndex = 7;
-            this.StopStreamButton.Text = "Stop streaming";
-            this.StopStreamButton.UseVisualStyleBackColor = true;
-            this.StopStreamButton.Click += new System.EventHandler(this.StopStreamButton_Click);
+            this.StopStreamButtonTCP.Location = new System.Drawing.Point(128, 189);
+            this.StopStreamButtonTCP.Name = "StopStreamButtonTCP";
+            this.StopStreamButtonTCP.Size = new System.Drawing.Size(133, 23);
+            this.StopStreamButtonTCP.TabIndex = 7;
+            this.StopStreamButtonTCP.Text = "Stop streaming TCP";
+            this.StopStreamButtonTCP.UseVisualStyleBackColor = true;
+            this.StopStreamButtonTCP.Click += new System.EventHandler(this.StopStreamButton_Click);
+            // 
+            // StopStreamButtonUDP
+            // 
+            this.StopStreamButtonUDP.Location = new System.Drawing.Point(293, 189);
+            this.StopStreamButtonUDP.Name = "StopStreamButtonUDP";
+            this.StopStreamButtonUDP.Size = new System.Drawing.Size(133, 23);
+            this.StopStreamButtonUDP.TabIndex = 9;
+            this.StopStreamButtonUDP.Text = "Stop streaming UDP";
+            this.StopStreamButtonUDP.UseVisualStyleBackColor = true;
+            this.StopStreamButtonUDP.Click += new System.EventHandler(this.StopStreamButtonUDP_Click);
+            // 
+            // StartStreamButtonUDP
+            // 
+            this.StartStreamButtonUDP.Location = new System.Drawing.Point(293, 160);
+            this.StartStreamButtonUDP.Name = "StartStreamButtonUDP";
+            this.StartStreamButtonUDP.Size = new System.Drawing.Size(133, 23);
+            this.StartStreamButtonUDP.TabIndex = 8;
+            this.StartStreamButtonUDP.Text = "Start streaming UDP";
+            this.StartStreamButtonUDP.UseVisualStyleBackColor = true;
+            this.StartStreamButtonUDP.Click += new System.EventHandler(this.StartStreamButtonUDP_Click);
+            // 
+            // startUDPButton
+            // 
+            this.startUDPButton.Location = new System.Drawing.Point(273, 11);
+            this.startUDPButton.Name = "startUDPButton";
+            this.startUDPButton.Size = new System.Drawing.Size(75, 23);
+            this.startUDPButton.TabIndex = 10;
+            this.startUDPButton.Text = "Start UDP";
+            this.startUDPButton.UseVisualStyleBackColor = true;
+            this.startUDPButton.Click += new System.EventHandler(this.startUDPButton_Click);
+            // 
+            // SendUDPButton
+            // 
+            this.SendUDPButton.Location = new System.Drawing.Point(293, 131);
+            this.SendUDPButton.Name = "SendUDPButton";
+            this.SendUDPButton.Size = new System.Drawing.Size(107, 23);
+            this.SendUDPButton.TabIndex = 11;
+            this.SendUDPButton.Text = "SendUDPButton";
+            this.SendUDPButton.UseVisualStyleBackColor = true;
+            this.SendUDPButton.Click += new System.EventHandler(this.SendUDPButton_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.StopStreamButton);
-            this.Controls.Add(this.StartStreamButton);
+            this.Controls.Add(this.SendUDPButton);
+            this.Controls.Add(this.startUDPButton);
+            this.Controls.Add(this.StopStreamButtonUDP);
+            this.Controls.Add(this.StartStreamButtonUDP);
+            this.Controls.Add(this.StopStreamButtonTCP);
+            this.Controls.Add(this.StartStreamButtonTCP);
             this.Controls.Add(this.SendButton);
             this.Controls.Add(this.textBoxMessage);
             this.Controls.Add(this.StateTextBox);
@@ -140,7 +188,11 @@
         private TextBox StateTextBox;
         private TextBox textBoxMessage;
         private Button SendButton;
-        private Button StartStreamButton;
-        private Button StopStreamButton;
+        private Button StartStreamButtonTCP;
+        private Button StopStreamButtonTCP;
+        private Button StopStreamButtonUDP;
+        private Button StartStreamButtonUDP;
+        private Button startUDPButton;
+        private Button SendUDPButton;
     }
 }

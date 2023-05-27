@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using TCP_Client_WinForms;
 
 namespace TCP_Client_Server
 {
@@ -29,27 +30,18 @@ namespace TCP_Client_Server
         static Bitmap BackGround = new Bitmap(width, height);
         Graphics graphics = Graphics.FromImage(BackGround);
 
-        public Server(string hostname, int port, TextBox _textBoxState, ProtocolType protocolType)
+        public Server(string hostname, int port, TextBox _textBoxState)
         {
             textBoxState = _textBoxState; // Если null, все к херам развалится :)))
 
             IPAddress LocalAddr = IPAddress.Parse(hostname);
             LocalIp = new IPEndPoint(LocalAddr, port);
             
-            if (protocolType == ProtocolType.TCP)
-            {
-                TcpListener server = new TcpListener(LocalIp);
-                server.Start();  // Запускаем сервер
+            TcpListener server = new TcpListener(LocalIp);
+            server.Start();  // Запускаем сервер
 
-                Listening(server);  // Слушаем
-            }
-            else if (protocolType == ProtocolType.UDP)
-            {
-
-                udpClient = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, System.Net.Sockets.ProtocolType.Udp);
-                SendAsyncUDP();
-            }
-
+            Listening(server);  // Ждем подключений
+            
         }
         
         /// <summary>
@@ -66,6 +58,9 @@ namespace TCP_Client_Server
 
             // Получаем адрес клиента
             WriteInLog($"Адрес подключенного клиента: {tcpClient.RemoteEndPoint}");
+
+            // Получить публичный ключ клиента
+            // Отправить свой публичный ключ
         }
 
         /// <summary>
@@ -101,39 +96,6 @@ namespace TCP_Client_Server
             WriteInLog("Сообщение отправлено");
         }
         
-        /// <summary>
-        /// Отправить картинку UDP
-        /// </summary>
-        public async void SendAsyncUDP()
-        {
-            int a = 0;
-            if (udpClient == null)
-            {
-                WriteInLog("Клиент не доступен!");
-                return;
-            }
-            // Получаем снимок экрана
-            graphics.CopyFromScreen(0, 0, 0, 0, BackGround.Size);
-
-            // получаем размеры окна рабочего стола
-            Rectangle bounds = Screen.GetBounds(Point.Empty);
-
-            // создаем пустое изображения размером с экран устройства
-            using (var bitmap = new Bitmap(bounds.Width, bounds.Height))
-            {
-                // создаем объект на котором можно рисовать
-                using (var g = Graphics.FromImage(bitmap))
-                {
-                    // перерисовываем экран на наш графический объект
-                    g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
-                }
-
-                var data1 = ImageToByteArray(bitmap);
-                a = await udpClient.SendToAsync(data1, SocketFlags.None, RemoteIp);
-            }
-
-            WriteInLog($"Сообщение отправлено {a}байт");
-        }
 
         /// <summary>
         /// Отправить снимок экрана
@@ -171,18 +133,53 @@ namespace TCP_Client_Server
         }
 
         /// <summary>
-        /// Принять сообщение (заглушка)
+        /// Принять сообщение
         /// </summary>
         /// <param name="socket"></param>
-        private async void ReceiveTCPAsync(Socket socket)
+        public async void ReceiveTCPAsync()
         {
-            byte[] data = new byte[512];
+            if (tcpClient == null)
+            {
+                //WriteInLog("Клиент не пдключен!");
+                return;
+            }
+            byte[] data = new byte[50];
+            MouseData mouseInput = new MouseData();
+            KeyBoardData kbInput = new KeyBoardData();
+
+            var mouseController = new MouseController();
 
             // получаем данные из потока
-            int bytes = await socket.ReceiveAsync(data, SocketFlags.None);
-            // получаем отправленное время
-            string time = Encoding.UTF8.GetString(data, 0, bytes);
-            WriteInLog($"Текущее время: {time}");
+            int bytes = await tcpClient.ReceiveAsync(data, SocketFlags.None);
+            if (data.Any())
+            {
+                switch (data[0])
+                {
+                    //Mouse input
+                    case 0:
+                        mouseInput = MouseData.toData(data);
+                    break;
+
+                    //KeyBoard input
+                    case 1:
+                        kbInput = KeyBoardData.toData(data);
+                    break;
+                }
+            }
+            //var text = $"Получен инпут: {mouseInput.ToString() + " " + kbInput.ToString()}";
+
+            if (mouseInput._x != 0 || mouseInput._y != 0)
+            {
+                mouseController = new MouseController(mouseInput._x, mouseInput._y);
+                if (mouseInput._button == 0)
+                    mouseController.Move();
+                else if (mouseInput._button == 1)
+                    mouseController.LeftClick();
+                else if (mouseInput._button == 2)
+                    mouseController.MiddleClick();
+                else if (mouseInput._button == 3)
+                    mouseController.RightClick();
+            }
         }
 
         #region Service Methods

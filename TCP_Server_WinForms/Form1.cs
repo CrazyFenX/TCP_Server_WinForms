@@ -7,11 +7,16 @@ namespace TCP_Server_WinForms
         Server tcpServer;
         ServerUDP udpServer;
 
+        Thread threadTCP;
+        Thread threadUDP;
+
         bool IsStreamingOn = false;
 
         public Form1()
         {
             InitializeComponent();
+            threadTCP = new Thread(new ThreadStart(StreamStartTCP));
+            threadUDP = new Thread(new ThreadStart(StreamStartUDP));
         }
 
         private void StartButton_Click(object sender, EventArgs e)
@@ -20,7 +25,7 @@ namespace TCP_Server_WinForms
             var Port = Convert.ToInt32(textBoxPort.Text);
             try
             {
-                tcpServer = new Server(IP, Port, StateTextBox, Server.ProtocolType.TCP);
+                tcpServer = new Server(IP, Port, StateTextBox);
                 Server.WriteInLog("TCP Server is ON", StateTextBox);
 
             }
@@ -62,17 +67,19 @@ namespace TCP_Server_WinForms
 
         private void StartStreamButton_Click(object sender, EventArgs e)
         {
-            IsStreamingOn = true;
+            threadTCP.Start();
+            //IsStreamingOn = true;
 
-            try
-            {
-                while(IsStreamingOn)
-                    tcpServer.SendScreenAsyncTCP();
-            }
-            catch (Exception ex)
-            {
-                Server.WriteInLog(ex.Message, StateTextBox);
-            }
+            //try
+            //{
+            //    while (IsStreamingOn)
+            //        //tcpServer.SendScreenAsyncTCP();
+            //        tcpServer.ReceiveTCPAsync();
+            //}
+            //catch (Exception ex)
+            //{
+            //    Server.WriteInLog(ex.Message, StateTextBox);
+            //}
         }
 
         private void StopStreamButton_Click(object sender, EventArgs e)
@@ -81,6 +88,42 @@ namespace TCP_Server_WinForms
         }
 
         private void StartStreamButtonUDP_Click(object sender, EventArgs e)
+        {
+            threadUDP.Start();
+        }
+
+        private void StopStreamButtonUDP_Click(object sender, EventArgs e)
+        {
+            IsStreamingOn = false;
+        }
+
+        private void SendUDPButton_Click(object sender, EventArgs e)
+        {
+            if (udpServer == null)
+            {
+                Server.WriteInLog("UDP Сервер не подключен", StateTextBox);
+                return;
+            }
+            udpServer.SendAsyncUDP();
+        }
+
+        public void StreamStartTCP()
+        {
+            IsStreamingOn = true;
+            
+            try
+            {
+                while (IsStreamingOn)
+                    tcpServer.ReceiveTCPAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine();
+                //Server.WriteInLog(ex.Message, StateTextBox);
+            }
+        }
+
+        public void StreamStartUDP()
         {
             IsStreamingOn = true;
 
@@ -93,22 +136,6 @@ namespace TCP_Server_WinForms
             {
                 Server.WriteInLog(ex.Message, StateTextBox);
             }
-
-        }
-
-        private void StopStreamButtonUDP_Click(object sender, EventArgs e)
-        {
-            IsStreamingOn = false;
-        }
-
-        private void SendUDPButton_Click(object sender, EventArgs e)
-        {
-            if (udpServer == null)
-            {
-                Server.WriteInLog("UDP Сурвер не подключен", StateTextBox);
-                return;
-            }
-            udpServer.SendAsyncUDP();
         }
     }
 }

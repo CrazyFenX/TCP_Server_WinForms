@@ -24,6 +24,7 @@ namespace TCP_Client_WinForms
         public ushort _y;
         public byte _button;
         public byte _ID;
+        public byte _UpOrDown;
 
         public MouseData()
         {
@@ -31,27 +32,30 @@ namespace TCP_Client_WinForms
             _x = 0;
             _y = 0;
             _button = 0;
+            _UpOrDown = 0;
         }
         
-        public MouseData(byte ID, ushort x, ushort y, byte button)
+        public MouseData(byte ID, ushort x, ushort y, byte button, byte UpOrDown)
         {
             _ID = ID;
             _x = x;
             _y = y;
             _button = button;
+            _UpOrDown = UpOrDown;
         }
 
-        public MouseData(int ID, int x, int y, int button)
+        public MouseData(int ID, int x, int y, int button, int UpOrDown)
         {
             _ID = (byte)ID;
             _x = (ushort)x;
             _y = (ushort)y;
             _button = (byte)button;
+            _UpOrDown = (byte)UpOrDown;
         }
 
         public static byte[] toByteArr(MouseData input)
         {
-            byte[] mas = new byte[10];
+            byte[] mas = new byte[11];
             mas[0] = input._ID;
             for (int i = 0; i < 4; i++)
             {
@@ -59,6 +63,7 @@ namespace TCP_Client_WinForms
                 mas[i + 5] = Convert.ToByte(input._y / (ushort)Math.Pow(10, 3 - i) % 10);
             }
             mas[9] = input._button;
+            mas[10] = input._UpOrDown;
             return mas;
         }
 
@@ -73,7 +78,8 @@ namespace TCP_Client_WinForms
                 x += Convert.ToUInt16(arr[i + 1] * (ushort)Math.Pow(10, 3 - i));
                 y += Convert.ToUInt16(arr[i + 5] * (ushort)Math.Pow(10, 3 - i));
             }
-            return new MouseData(ID, x, y, button);
+            byte UpOrDown = arr[10];
+            return new MouseData(ID, x, y, button, UpOrDown);
         }
 
         public override string ToString()
@@ -163,28 +169,60 @@ namespace TCP_Client_WinForms
         [DllImport("user32.dll")]
         static extern bool SetCursorPos(int x, int y);
 
-        public void LeftClick()
+        public void LeftClickDown()
         {
-            //Выполнение первого клика левой клавишей мыши
+            //Выполнение
+            //первого клика левой клавишей мыши
             //mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, curPos.X >= X ? -Math.Abs(curPos.X - X) : Math.Abs(curPos.X - X), curPos.Y >= Y ? -Math.Abs(curPos.Y - Y) : Math.Abs(curPos.Y - Y), 0, 0);
             //curPos = new Point(X, Y);
-            mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+            //mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0); //169.254.150.225
+
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+
+        }
+        
+        public void LeftClickUp()
+        {
+            //Выполнение
+            //первого клика левой клавишей мыши
+            //mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, curPos.X >= X ? -Math.Abs(curPos.X - X) : Math.Abs(curPos.X - X), curPos.Y >= Y ? -Math.Abs(curPos.Y - Y) : Math.Abs(curPos.Y - Y), 0, 0);
+            //curPos = new Point(X, Y);
+            //mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0); //169.254.150.225
+
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+
         }
 
-        public void MiddleClick()
+        public void MiddleClickDown()
         {
             //Выполнение первого клика левой клавишей мыши
             //mouse_event(MOUSEEVENTF_MIDDLEDOWN | MOUSEEVENTF_MIDDLEUP, curPos.X >= X ? -Math.Abs(curPos.X - X) : Math.Abs(curPos.X - X), curPos.Y >= Y ? -Math.Abs(curPos.Y - Y) : Math.Abs(curPos.Y - Y), 0, 0);
             //curPos = new Point(X, Y);
-            mouse_event(MOUSEEVENTF_MIDDLEDOWN | MOUSEEVENTF_MIDDLEUP, 0, 0, 0, 0);
+            mouse_event(MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, 0);
+        }
+        
+        public void MiddleClickUp()
+        {
+            //Выполнение первого клика левой клавишей мыши
+            //mouse_event(MOUSEEVENTF_MIDDLEDOWN | MOUSEEVENTF_MIDDLEUP, curPos.X >= X ? -Math.Abs(curPos.X - X) : Math.Abs(curPos.X - X), curPos.Y >= Y ? -Math.Abs(curPos.Y - Y) : Math.Abs(curPos.Y - Y), 0, 0);
+            //curPos = new Point(X, Y);
+            mouse_event(MOUSEEVENTF_MIDDLEUP, 0, 0, 0, 0);
         }
 
-        public void RightClick()
+        public void RightClickDown()
         {
             //Выполнение первого клика левой клавишей мыши
             //mouse_event(MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP, curPos.X >= X ? -Math.Abs(curPos.X - X) : Math.Abs(curPos.X - X), curPos.Y >= Y ? -Math.Abs(curPos.Y - Y) : Math.Abs(curPos.Y - Y), 0, 0);
             //curPos = new Point(X, Y);
-            mouse_event(MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+            mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+        }
+        
+        public void RightClickUp()
+        {
+            //Выполнение первого клика левой клавишей мыши
+            //mouse_event(MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP, curPos.X >= X ? -Math.Abs(curPos.X - X) : Math.Abs(curPos.X - X), curPos.Y >= Y ? -Math.Abs(curPos.Y - Y) : Math.Abs(curPos.Y - Y), 0, 0);
+            //curPos = new Point(X, Y);
+            mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
         }
 
         public void Move()

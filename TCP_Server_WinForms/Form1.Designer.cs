@@ -59,6 +59,7 @@
             this.textBoxIp.Size = new System.Drawing.Size(100, 23);
             this.textBoxIp.TabIndex = 1;
             this.textBoxIp.Text = "100.124.160.151";
+            this.textBoxIp.TextChanged += new System.EventHandler(this.textBoxIp_TextChanged);
             // 
             // textBoxPort
             // 
@@ -67,6 +68,7 @@
             this.textBoxPort.Size = new System.Drawing.Size(100, 23);
             this.textBoxPort.TabIndex = 2;
             this.textBoxPort.Text = "8888";
+            this.textBoxPort.TextChanged += new System.EventHandler(this.textBoxPort_TextChanged);
             // 
             // StateTextBox
             // 
@@ -77,6 +79,7 @@
             this.StateTextBox.Size = new System.Drawing.Size(648, 97);
             this.StateTextBox.TabIndex = 3;
             this.StateTextBox.Text = "State";
+            this.StateTextBox.TextChanged += new System.EventHandler(this.StateTextBox_TextChanged);
             // 
             // textBoxMessage
             // 
@@ -85,6 +88,7 @@
             this.textBoxMessage.Size = new System.Drawing.Size(100, 23);
             this.textBoxMessage.TabIndex = 4;
             this.textBoxMessage.Text = "Text";
+            this.textBoxMessage.TextChanged += new System.EventHandler(this.textBoxMessage_TextChanged);
             // 
             // SendButton
             // 

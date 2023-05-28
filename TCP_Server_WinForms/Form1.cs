@@ -137,5 +137,25 @@ namespace TCP_Server_WinForms
                 Server.WriteInLog(ex.Message, StateTextBox);
             }
         }
+
+        private void StateTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxIp_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxPort_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxMessage_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

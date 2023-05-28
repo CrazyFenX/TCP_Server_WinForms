@@ -167,19 +167,25 @@ namespace TCP_Client_Server
                 }
             }
             //var text = $"Получен инпут: {mouseInput.ToString() + " " + kbInput.ToString()}";
-
             if (mouseInput._x != 0 || mouseInput._y != 0)
             {
                 mouseController = new MouseController(mouseInput._x, mouseInput._y);
                 if (mouseInput._button == 0)
                     mouseController.Move();
-                else if (mouseInput._button == 1)
-                    mouseController.LeftClick();
-                else if (mouseInput._button == 2)
-                    mouseController.MiddleClick();
-                else if (mouseInput._button == 3)
-                    mouseController.RightClick();
+                else if (mouseInput._button == 1 && mouseInput._UpOrDown == 1)
+                    mouseController.LeftClickDown();
+                else if (mouseInput._button == 1 && mouseInput._UpOrDown == 2)
+                    mouseController.LeftClickUp();
+                else if (mouseInput._button == 2 && mouseInput._UpOrDown == 1)
+                    mouseController.MiddleClickDown();
+                else if (mouseInput._button == 2 && mouseInput._UpOrDown == 2)
+                    mouseController.MiddleClickUp();
+                else if (mouseInput._button == 3 && mouseInput._UpOrDown == 1)
+                    mouseController.RightClickDown();
+                else if (mouseInput._button == 3 && mouseInput._UpOrDown == 2)
+                    mouseController.RightClickUp();
             }
+
         }
 
         #region Service Methods

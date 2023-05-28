@@ -36,14 +36,14 @@ namespace TCP_Client_Server
 
             IPAddress LocalAddr = IPAddress.Parse(hostname);
             LocalIp = new IPEndPoint(LocalAddr, port);
-            
+
             TcpListener server = new TcpListener(LocalIp);
             server.Start();  // Запускаем сервер
 
             Listening(server);  // Ждем подключений
-            
+
         }
-        
+
         /// <summary>
         /// Ожидание подключений
         /// </summary>
@@ -95,7 +95,7 @@ namespace TCP_Client_Server
 
             WriteInLog("Сообщение отправлено");
         }
-        
+
 
         /// <summary>
         /// Отправить снимок экрана
@@ -148,6 +148,7 @@ namespace TCP_Client_Server
             KeyBoardData kbInput = new KeyBoardData();
 
             var mouseController = new MouseController();
+            var keyboardController = new KeyBoardController();
 
             // получаем данные из потока
             int bytes = await tcpClient.ReceiveAsync(data, SocketFlags.None);
@@ -158,12 +159,12 @@ namespace TCP_Client_Server
                     //Mouse input
                     case 0:
                         mouseInput = MouseData.toData(data);
-                    break;
+                        break;
 
                     //KeyBoard input
                     case 1:
                         kbInput = KeyBoardData.toData(data);
-                    break;
+                        break;
                 }
             }
             //var text = $"Получен инпут: {mouseInput.ToString() + " " + kbInput.ToString()}";
@@ -185,11 +186,18 @@ namespace TCP_Client_Server
                 else if (mouseInput._button == 3 && mouseInput._UpOrDown == 2)
                     mouseController.RightClickUp();
             }
+            if (data[0] == 1)
+            {
+                if (data[2] == 1)
+                    keyboardController.KeyUp(kbInput._button);
+                else if (data[2] == 2)
+                    keyboardController.KeyDown(kbInput._button);
+            }
 
         }
 
         #region Service Methods
-        
+
         /// <summary>
         /// Запись в текстбокс лога изнутри 
         /// </summary>
@@ -256,7 +264,7 @@ namespace TCP_Client_Server
 
         public enum ProtocolType
         {
-            TCP  = 1,
+            TCP = 1,
             UDP = 2,
         }
     }

@@ -34,7 +34,7 @@ namespace TCP_Client_WinForms
             _button = 0;
             _UpOrDown = 0;
         }
-        
+
         public MouseData(byte ID, ushort x, ushort y, byte button, byte UpOrDown)
         {
             _ID = ID;
@@ -95,45 +95,51 @@ namespace TCP_Client_WinForms
     {
         public byte _button;
         public byte _ID;
+        public byte _UpOrDown;
 
         public KeyBoardData()
         {
             _button = 0;
             _ID = 0;
+            _UpOrDown = 0;
         }
 
-        public KeyBoardData(byte ID, byte button)
+        public KeyBoardData(byte ID, byte button, byte UpOrDown)
         {
             _button = button;
             _ID = ID;
+            _UpOrDown = UpOrDown;
         }
 
         public static byte[] toByteArr(KeyBoardData kb)
         {
-            byte[] mas = new byte[10];
+            byte[] mas = new byte[2];
             mas[0] = kb._ID;
             mas[1] = kb._button;
+            mas[2] = kb._UpOrDown;
             return mas;
         }
 
         public static KeyBoardData toData(byte[] arr)
         {
-            byte ID = arr[0];
-            byte button = arr[9];
-            return new KeyBoardData(ID, button);
+            //byte ID = arr[0];
+            //byte button = arr[1];
+            //byte UpOrDown = arr[2];
+            //return new KeyBoardData(ID, button);
+            return new KeyBoardData(arr[0], arr[1], arr[2]);
         }
 
         public override string ToString()
         {
             var ret = "";
             if (_ID != 0 || _button != 0)
-                ret = _ID + " " + _button;
+                ret = _ID + " " + _button + " " + _UpOrDown;
             return ret;
         }
     }
 
     public class MouseController
-    {   
+    {
         //Координаты на экране:     
         int X;
         int Y;
@@ -155,7 +161,7 @@ namespace TCP_Client_WinForms
         public MouseController()
         {
         }
-        
+
         public MouseController(int _x, int _y)
         {
             X = _x;
@@ -164,7 +170,7 @@ namespace TCP_Client_WinForms
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-        public static extern void mouse_event(uint dwFlags, int dx, int dy, int dwData,int dwExtraInfo);
+        public static extern void mouse_event(uint dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
 
         [DllImport("user32.dll")]
         static extern bool SetCursorPos(int x, int y);
@@ -180,7 +186,7 @@ namespace TCP_Client_WinForms
             mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
 
         }
-        
+
         public void LeftClickUp()
         {
             //Выполнение
@@ -200,7 +206,7 @@ namespace TCP_Client_WinForms
             //curPos = new Point(X, Y);
             mouse_event(MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, 0);
         }
-        
+
         public void MiddleClickUp()
         {
             //Выполнение первого клика левой клавишей мыши
@@ -216,7 +222,7 @@ namespace TCP_Client_WinForms
             //curPos = new Point(X, Y);
             mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
         }
-        
+
         public void RightClickUp()
         {
             //Выполнение первого клика левой клавишей мыши
@@ -232,6 +238,23 @@ namespace TCP_Client_WinForms
             //curPos = new Point(X, Y);
             SetCursorPos(X, Y);
             //Console.WriteLine();
+        }
+    }
+
+    public class KeyBoardController
+    {
+        public void KeyUp(byte key)
+        {
+            Keys ke = (Keys)key;
+            SendKeys.Send(ke.ToString());
+            //аааааа
+            //KeyEventArgs;
+            //SendKeys.Send(Convert.ToString(key));
+        }
+        public void KeyDown(byte key)
+        {
+            Keys ke = (Keys)key;
+            SendKeys.Send(ke.ToString());
         }
     }
 }
